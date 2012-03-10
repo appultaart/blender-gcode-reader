@@ -1,0 +1,48 @@
+Modifications to the splitFiles branch
+--------------------------------------
+
+1. Why these changes?
+The great Blender addon that is developed originally by Zignig and 
+improved by various authors, was not working with our
+Ultimaker 5D-code. In addition, for large Gcode files,
+the rendering and importing was slow, and it was difficult
+to adjust the points after import into Blender. 
+
+Finally, we have a need to split and merge Gcode files (to 
+use multiple extruder heads on our Ultimaker), and there 
+was no python Gcode parser available (or, I did not find it). 
+
+
+2. What is changed?
+This is an attempt to:
+* split the Gcode parser part and the Blender render part into two
+  files. This should make it easier to enhance the Gcode parser 
+  without the need for Blender (or the 'bpy' module). Also, this 
+  will facilitate potential export to other renderers/programs.
+* Make the Gcode parser a bit more agnostic. It is now geared to
+  Skeinforge commands, but since we're using the Slic3r program 
+  to slice our .stl files, we can't use some functionality (such
+  as the '<layer>' command
+* I've added a 'gcodeCommand' class that stores the Gcode data as 
+  a dictionary, which makes it easier to handle for our current 
+  purposes. Data that is read is not destructed but kept.
+
+
+3. Todo.
+Much needs to be done. For one, the current file has a nice Addon
+including a registration to the Blender interface. I've left out
+all of this (not yet put back) because the draw/render functionality
+should be in before working on the fancy/easiness of use. 
+Also, the Makerbot X,Y data (with M101/M103 codes) is probably not 
+working anymore correctly, since I use the dE parameter to check
+if plastics are extruded.
+
+
+4. note on Git
+As svn-user, this is my first Git-clone. If I mess up something badly:
+sorry and apologies in advance! Git can be a bit confusing for a 
+non-programmer like me... any help appreciated.
+
+Cheers,
+Douwe van der Veen / contact: appultart-github@yahoo.com
+
