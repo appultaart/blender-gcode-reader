@@ -324,6 +324,41 @@ def draw_blenderBeziers(*args):
         bpy.context.scene.objects.link(ob)
 
 
+###
+def animate_blenderBeziers(layerNames):
+    """Animate the constructed Blender Beziercurves: one curve per keyframe.
+    
+    layerNames  :   The names of the layers to be animated
+                    This is normally the Z-value of the curve.
+    """
+
+    scn = bpy.context.scene                                                     # get the current scene
+    scn.frame_end = len(layerNames)                                             # one frame per curve
+    scn.frame_set(0)                                                            # move to frame 0
+
+    # At frame zero, hide all the curves
+    for zValue in layerNames:
+        # The beziercurve objects that were created are named 'Obcurve_Z###', 
+        # where the # stands for the Z-value number in which that curve is located.
+        # For every of the curves: select and hide them
+        currObj = bpy.data.objects["Obcurve_Z{0}".format(zValue)]
+        currObj.hide = True                                                     # hide selected object
+        currObj.hide_render = True                                              # .. also when rendering
+        currObj.keyframe_insert("hide")
+        currObj.keyframe_insert("hide_render")
+
+    # Let the curves appear one frame at a time
+    for indexNr in range(len(layerNames)):
+        scn.frame_set(indexNr)
+        
+        currObj = bpy.data.objects["Obcurve_Z{0}".format(layerNames[indexNr])]
+        
+        currObj.hide = False
+        currObj.hide_render = False
+        currObj.keyframe_insert("hide")
+        currObj.keyframe_insert("hide_render")
+
+
 
 # ----- the body of the program -----
 def main():
@@ -366,6 +401,9 @@ def main():
             gcodeLayer._registry.remove(layer)                                  # remove Z-value from registry
     print("These layers were removed as they contain no splines:", noSplineInLayer)
 
+    # Hack to reselect the layernames: layers with 0 curves are removed, so we need to update
+    layerNames = sorted(gcodeLayer._registry)
+
     # let's start drawing in Blender!
     # First, make a bevel object in case we'd like to use one
     bev = make_bevel_object()                                                   # make a bevel object
@@ -374,6 +412,8 @@ def main():
     draw_blenderBeziers(myGcodeLayers)                                          # no bevel object
 #    draw_blenderBeziers(myGcodeLayers, bev)                                    # with bevel object    
 
+    # animate the curves
+    animate_blenderBeziers(layerNames)
     
     
 if __name__ == "__main__":
