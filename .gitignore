@@ -1,3 +1,8 @@
 #Ignore all test renders and blend files
 testFiles/
 
+#Ignore __pycache__
+__pycache__
+
+# ignore geany project file
+douwe_blender-gcode-reader.geany
