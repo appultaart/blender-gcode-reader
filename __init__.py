@@ -24,7 +24,7 @@ bl_info = {
     'author': 'Simon Kirkby',
     'version': (0,0,7),
     'blender': (2, 6, 2),
-    'api': 44790,
+    'api': 45241,
     'location': 'File > Import-Export > Gcode',
     'description': 'Import and visualize gcode files generated for 3D printers (.gcode)',
     "wiki_url": "",
@@ -81,32 +81,27 @@ class IMPORT_OT_gcode(bpy.types.Operator):
 #        global toggle, theMergeLimit, theCodec, theCircleRes
 
         # do the things needed to build a file
-        myMachine = parseGcode.machine()
-        print("Machine initiated:", myMachine)
+        myMachine = parseGcode.Machine()
+        print("OK: initiated Machine:", myMachine)
 
-        myMachine.read_gcode(self.filepath)
-        print("Done: reading the Gcode")
-        
-        myMachine.standardize_5D_commands()
-        print("Done: standardizing 5D commands")
+        myMachine.add_extruder(self.filepath)
+        print("OK: add extruder to current machine.")
 
-        myMachine.synchronize_commands()
-        print("Done: synchronizing commands")
+        myGcodes = myMachine.extruders[-1].standardGcode
+        print("OK: Gcode commands are fetched from the current extruder.")
 
-        myGcodeCommands = myMachine.export_commands()                               # export to a list of commands in sequential order
-        print("Done: exporting commands.")
 
-    # The gcodeData object is a dictionary that stores gcodeLayer objects.
-    # Each gcodeLayer object has the name of the 'Z' value, and in this 
+    # The gcodeData object is a dictionary that stores gcodeCurveData objects.
+    # Each gcodeCurveData object has the name of the 'Z' value, and in this 
     # object all the commands with that 'Z' value are stored.
-        myGcodeLayers = blenderGcode.sort_commands_to_layers(myGcodeCommands)                    # input is list, returns dict
-        layerNames = sorted(blenderGcode.gcodeLayer._registry)
+        mygcodeCurveDatas = blenderGcode.sort_commands_to_layers(myGcodes)                    # input is list, returns dict
+        layerNames = sorted(blenderGcode.gcodeCurveData._registry)
         print("Layer names are:", layerNames)
 
-    # For every layer (i.e., every gcodeLayer object), walk through the 
+    # For every layer (i.e., every gcodeCurveData object), walk through the 
     # commands and convert to splines. For Blender, every layer (= Z-value) 
     # stores one BezierCurve object. This curve can have multiple splines.
-        for layer in myGcodeLayers.values():
+        for layer in mygcodeCurveDatas.values():
             layer.create_splines()
             print(layer)
 
@@ -115,21 +110,21 @@ class IMPORT_OT_gcode(bpy.types.Operator):
     # are normally the result of a repositioning command like G92)
         noSplineInLayer = list()
         for layer in layerNames:
-            if myGcodeLayers[layer].count_splines() == 0:                           # no splines are present
-                noSplineInLayer.append(myGcodeLayers.pop(layer))                    # pop the layer with 0 splines
-                blenderGcode.gcodeLayer._registry.remove(layer)                                  # remove Z-value from registry
+            if mygcodeCurveDatas[layer].count_splines() == 0:                           # no splines are present
+                noSplineInLayer.append(mygcodeCurveDatas.pop(layer))                    # pop the layer with 0 splines
+                blenderGcode.gcodeCurveData._registry.remove(layer)                                  # remove Z-value from registry
         print("These layers were removed as they contain no splines:", noSplineInLayer)
 
         # Hack to reselect the layernames: layers with 0 curves are removed, so we need to update
-        layerNames = sorted(blenderGcode.gcodeLayer._registry)
+        layerNames = sorted(blenderGcode.gcodeCurveData._registry)
     
         # let's start drawing in Blender!
         # First, make a bevel object in case we'd like to use one
         bev = blenderGcode.make_bevel_object()                                                   # make a bevel object
         
         # Draw the curves to our scene
-        blenderGcode.draw_blenderBeziers(myGcodeLayers)                                          # no bevel object
-    #    draw_blenderBeziers(myGcodeLayers, bev)                                    # with bevel object    
+        blenderGcode.draw_blenderBeziers(mygcodeCurveDatas)                                          # no bevel object
+    #    draw_blenderBeziers(mygcodeCurveDatas, bev)                                    # with bevel object    
     
         # animate the curves
         blenderGcode.animate_blenderBeziers(layerNames)
