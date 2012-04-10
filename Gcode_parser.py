@@ -651,6 +651,7 @@ class Extruder:
         
         with open(outFileName, mode = "wt") as outFile:
             for indexNr in range(len(self.rawGcode)):
+                outFile.write("--- {0} ---\n".format(indexNr + 1))
                 outFile.write("r\t" + self.rawGcode[indexNr] + "\n")
                 outFile.write("s\t" + str(self.standardGcode[indexNr]) + "\n")
 
