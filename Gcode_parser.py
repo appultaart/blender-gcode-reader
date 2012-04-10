@@ -607,7 +607,7 @@ class Extruder:
         return  :   file (that contains reconstructed gcode commands)
         """
         
-        with open(outFile, mode = "w") as gcodeOutFile:
+        with open(outFile, mode = 'w') as gcodeOutFile:
             for indexNr in range(0, len(self.standardGcode)):                
                 gcodeOutFile.write(self.standardGcode[indexNr].name + " " + str(self.standardGcode[indexNr]) + "\n")
 
@@ -643,6 +643,16 @@ class Extruder:
                                 'absolutePos':None,                                 # is positioning absolute (True), relative (False)
                                 'fan':False}                                        # is the fan on (True) or off (False)
         return lastState
+
+
+    def debug_extruder(self, outFileName = "/home/douwe/Desktop/debug_extruder.txt"):
+        """Aid with debugging extruder data: save all data to a text file.
+        """
+        
+        with open(outFileName, mode = "wt") as outFile:
+            for indexNr in range(len(self.rawGcode)):
+                outFile.write("r\t" + self.rawGcode[indexNr] + "\n")
+                outFile.write("s\t" + str(self.standardGcode[indexNr]) + "\n")
 
 
 
@@ -837,11 +847,12 @@ def main():
     Ultimaker.add_extruder(inFile2)        # add extruder 2
 #    print(Ultimaker)
 
+    Ultimaker.extruders[-1].debug_extruder()
 #    for i in Ultimaker.extruders[0].commands:
 #        print(repr(i))
 
-    Ultimaker.merge_extruders(11, 11)
-    Ultimaker.extruders[-1].export_standardGcde()
+#    Ultimaker.merge_extruders(11, 11)
+#    Ultimaker.extruders[-1].export_standardGcde()
     
 #    Ultimaker.extruders[1].add_offset()
     
@@ -852,81 +863,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    #def add_merge_gcode(self, countX, switchToExtruder = 1, retractValue = 5):
-        #"""Add specific gcode commands when an extruder head is switched. 
-        #"""
-        
-        ## Determine what the last extruder was after which the code will be added
-        #if switchToExtruder == 1:     # current is T0
-            #currExtruder = self.extruders[0]
-            #otherExtruder = self.extruders[1]
-        #elif switchToExtruder == 0:       # current is T1
-            #currExtruder = self.extruders[1]
-            #otherExtruder = self.extruders[0]
-
-        ## the new, mix Extruder instance is the last of the extruders
-        #newExtruder = self.extruders[-1]
-
-        ## obtain the last known state of the extruders
-        #currLastState = currExtruder.commands[-1]
-        #otherLastState = otherExtruder.commands[-1]
-        
-        ## Add merge-related commands to the new Extruder:
-        ## 1. Issue a G1 command to the current extruder, with E-parameter corrected
-        ## 2. Issue a T0 or T1 command, to switch between extruders
-        ## 3. Issue a G1 command to the newly switched extruder, with E parameter and XY corrected
-
-        ## 1
-        #newExtruder.standardGcode.append(Gcode(name="x_" + str(countX)))
-        #newExtruder.standardGcode[-1].command = "G1"
-        #newExtruder.standardGcode[-1].parameters["comment"] = "close extruder before switching to new extruder"
-        #newExtruder.standardGcode[-1].update_state(currLastState)
-        #newExtruder.standardGcode[-1].E -= retractValue
-        
-        ## 2
-        #newExtruder.standardGcode.append(Gcode(name="x_" + str(countX + 1)))
-        #if switchToExtruder == 1:
-            #newExtruder.standardGcode[-1].command = "T1"
-            #newExtruder.standardGcode[-1].parameters["comment"] = "switch from T0 to T1"
-            #newExtruder.standardGcode[-1].T = 1
-        #elif switchToExtruder == 0:
-            #newExtruder.standardGcode[-1].command = "T0"
-            #newExtruder.standardGcode[-1].parameters["comment"] = "switch from T1 to T0"
-            #newExtruder.standardGcode[-1].T = 0
-        #newExtruder.standardGcode[-1].update_state(otherLastState)
-        
-        ##3
-        #newExtruder.standardGcode.append(Gcode(name="x_" + str(countX + 2)))
-        #newExtruder.standardGcode[-1].command = "G1"
-        #newExtruder.standardGcode[-1].parameters["comment"] = "open extruder after switching"
-        #newExtruder.standardGcode[-1].update_state(otherLastState)
-        #newExtruder.standardGcode[-1].E += retractValue        
-        ## done
