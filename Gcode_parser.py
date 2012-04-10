@@ -323,9 +323,9 @@ class Gcode:
         self.name = name                                                        # command name: suggest to use the line number
         self.command = str()                                                    # the gcode command. Examples: 'G1,' 'M105', 'comment', 'skeinforge'
         self.parameters = dict()                                                # the parameters of the command. Example: {'S':260}
-        self.X = 0.0
-        self.Y = 0.0
-        self.Z = 0.0
+        self.X = None
+        self.Y = None
+        self.Z = None
         self.E = 0.0
         self.F = 0.0
         self.T = 0
@@ -397,6 +397,9 @@ class Gcode:
         return  :   an updated Gcode instance
         
         """
+        print("Self", repr(self))
+        print("Other", repr(other))
+        
         other.command = self.command        # store the last used command
         
         # remove any of the items that we don't want to pass onto other commands

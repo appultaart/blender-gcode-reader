@@ -129,8 +129,8 @@ class gcodeCurve:
         
         for indexNr in range(1, len(self.standardGcode)):
             currSplinePoint = self.standardGcode[indexNr]
-            print("CURR SPLINE POINT: ", str(currSplinePoint))
-            print("LAST SPLINE POINT: ", str(lastSplinePoint))
+#            print("CURR SPLINE POINT: ", str(currSplinePoint))
+#            print("LAST SPLINE POINT: ", str(lastSplinePoint))
             
             delta = (currSplinePoint.X - lastSplinePoint.X, 
                      currSplinePoint.Y - lastSplinePoint.Y,
@@ -248,7 +248,7 @@ class gcodeCurvesData:
         """
         
         for cmd in self.standardGcode:
-            print(">>CMD", cmd)
+            print(">>CMD", cmd.name, cmd)
             # process only the standardGcode that contain useful position information
             if cmd.command not in ("comment", "skeinforge", "unknown"):
                 zValue = cmd.Z
@@ -381,7 +381,7 @@ def main():
     this code is ignored (e.g., to facilitate import as a module)
     """
 
-    inFile = '/home/douwe/compile/github/blender-gcode-reader/testFiles/sneeuwpop_T0.gcode' #"_partial2.gcode'
+    inFile = '/home/douwe/compile/github/blender-gcode-reader/testFiles/sneeuwpop.gcode' #"_partial2.gcode'
 #    inFile = '/media/data_disk/fablab_utrecht/source/blender-gcode-reader/example files/example_framevertex.gcode'
     
     # load the Gcode data into an 'Extruder' instance that resides inside a 'Machine'
