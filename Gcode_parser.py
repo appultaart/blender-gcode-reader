@@ -650,13 +650,17 @@ class Extruder:
 
     def debug_extruder(self, outFileName = "/home/douwe/Desktop/debug_extruder.txt"):
         """Aid with debugging extruder data: save all data to a text file.
+        
+        Note that the 'merge_extruders' code only returns 'standardGcode' 
+        commands and not 'rawGcode' commands, hence a test for the presence
+        of 'len(rawGcode) > 0'
         """
         
         with open(outFileName, mode = "wt") as outFile:
-            for indexNr in range(len(self.rawGcode)):
-                outFile.write("--- {0} ---\n".format(indexNr + 1))
-                outFile.write("r\t" + self.rawGcode[indexNr] + "\n")
-                outFile.write("s\t" + str(self.standardGcode[indexNr]) + "\n")
+            for indexNr in range(len(self.standardGcode)):
+                if len(self.rawGcode) > 0:
+                    outFile.write("r -- {0} --\t".format(indexNr + 1) + str(self.rawGcode[indexNr]) + "\n")
+                outFile.write("s -- {0} --\t".format(indexNr + 1) + str(self.standardGcode[indexNr]) + "\n\n")
 
 
 
@@ -776,6 +780,7 @@ class Machine:
         newExtruder.standardGcode[-1].parameters["comment"] = "** extruder 2 Initialization end **"
         newExtruder.standardGcode[-1].T = 1
     
+
         # Step 2: merge the remainder of the code
         #   first, find the Z values of extruder1 and extruder2 
         Zvalues = set()
@@ -783,8 +788,8 @@ class Machine:
             Zvalues.add(extruder1.standardGcode[indexNr].Z)
         for indexNr in range(line2 - 1, len(extruder2.standardGcode)):
             Zvalues.add(extruder2.standardGcode[indexNr].Z)
-        Zvalues.discard(None)               # Remove any 'None' type, if present
-        Zvalues = sorted(list(Zvalues))     # ... and sort the Z-values in a list
+        Zvalues.discard(None)                                                   # Remove any 'None' type, if present
+        Zvalues = sorted(list(Zvalues))                                         # ... and sort the Z-values in a list
         print("Z-values: ", Zvalues)
 
         lastStateExtruder1 = extruder1.standardGcode[line1]
@@ -851,11 +856,13 @@ def main():
     Ultimaker.add_extruder(inFile2)        # add extruder 2
 #    print(Ultimaker)
 
-    Ultimaker.extruders[-1].debug_extruder()
+#    Ultimaker.extruders[-1].debug_extruder()
 #    for i in Ultimaker.extruders[0].commands:
 #        print(repr(i))
 
-#    Ultimaker.merge_extruders(11, 11)
+    Ultimaker.merge_extruders(11, 11)
+    Ultimaker.extruders[-1].debug_extruder()
+
 #    Ultimaker.extruders[-1].export_standardGcde()
     
 #    Ultimaker.extruders[1].add_offset()
