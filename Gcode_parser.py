@@ -326,8 +326,8 @@ class Gcode:
         self.X = None
         self.Y = None
         self.Z = None
-        self.E = 0.0
-        self.F = 0.0
+        self.E = None
+        self.F = None
         self.T = 0
 
     def __repr__(self):
@@ -339,7 +339,7 @@ class Gcode:
     def __str__(self):
         """return a sting representation of all the parameters of this command"""
 
-        constructedGcode = ""                 # store the result in here
+        constructedGcode = ""                                                   # store the result in here
         
         # if it's only a comment, return the comment and ignore other parameters
         if self.command == "comment":
@@ -397,10 +397,10 @@ class Gcode:
         return  :   an updated Gcode instance
         
         """
-        print("Self", repr(self))
-        print("Other", repr(other))
+# DEBUG        print("Self", repr(self))
+# DEBUG       print("Other", repr(other))
         
-        other.command = self.command        # store the last used command
+        other.command = self.command                                            # store the last used command
         
         # remove any of the items that we don't want to pass onto other commands
         for item in ("comment", "unknown", "skeinforge"):
@@ -600,7 +600,7 @@ class Extruder:
         print("OK: Gcode commands for '{0}' have been expanded with previous values".format(self.name))
 
 
-    def export_standardGcde(self, outFile = '/home/douwe/Desktop/output.gcode'):
+    def export_standardGcode(self, outFile = '/home/douwe/Desktop/output.gcode'):
         """
         Reconstruct raw Gcode commands from processed, standardized Gcode commands.
         
@@ -612,7 +612,8 @@ class Extruder:
         
         with open(outFile, mode = 'w') as gcodeOutFile:
             for indexNr in range(0, len(self.standardGcode)):                
-                gcodeOutFile.write(self.standardGcode[indexNr].name + " " + str(self.standardGcode[indexNr]) + "\n")
+#                gcodeOutFile.write(self.standardGcode[indexNr].name + " " + str(self.standardGcode[indexNr]) + "\n")
+                gcodeOutFile.write(str(self.standardGcode[indexNr]) + "\n")
 
 
     def add_offset(self, offsetX = 1000, offsetY = 1000):
@@ -659,8 +660,8 @@ class Extruder:
         with open(outFileName, mode = "wt") as outFile:
             for indexNr in range(len(self.standardGcode)):
                 if len(self.rawGcode) > 0:
-                    outFile.write("r -- {0} --\t".format(indexNr + 1) + str(self.rawGcode[indexNr]) + "\n")
-                outFile.write("s -- {0} --\t".format(indexNr + 1) + str(self.standardGcode[indexNr]) + "\n\n")
+                    outFile.write("r -- l:{0} --\t".format(indexNr + 1) + str(self.rawGcode[indexNr]) + "\n")
+                outFile.write("s -- l:{0} -- n:{1} --\t".format(indexNr + 1, str(self.standardGcode[indexNr].name)) + str(self.standardGcode[indexNr]) + "\n\n")
 
 
 
@@ -796,7 +797,7 @@ class Machine:
         lastStateExtruder2 = extruder2.standardGcode[line2]
 
         print("laststate 1", lastStateExtruder1, "line1:", line1)
-        
+
         for Zval in Zvalues:
             # assumption: the gcode commands are from lowest to highest Z-value
             if extruder1.standardGcode[line1].Z == Zval:
@@ -807,12 +808,15 @@ class Machine:
                 countX += 1
                 newExtruder.standardGcode[-1].command = "T0"
                 newExtruder.standardGcode[-1].parameters["comment"] = "** switch to T0 **"
-                
+
                 while extruder1.standardGcode[line1].Z == Zval:
 #                    print("line1", line1, extruder1.commands[line1])
                     newExtruder.standardGcode.append(extruder1.standardGcode[line1])
                     newExtruder.standardGcode[-1].T = 0
                     newExtruder.standardGcode[-1].name = "a_" + str(newExtruder.standardGcode[-1].name)
+
+                    # add here code to update lastStateExtruder1
+
                     if line1 == len(extruder1.standardGcode) - 1:
                         break
                     else:
@@ -848,22 +852,32 @@ def main():
     """
 
     # create a extruder (stores commands)
-    inFile1 = '/home/douwe/compile/github/blender-gcode-reader/testFiles/line_L.gcode'
-    inFile2 = '/home/douwe/compile/github/blender-gcode-reader/testFiles/line_R.gcode'
+    inFile1 = '/home/douwe/compile/github/blender-gcode-reader/testFiles/line_L_large.gcode'
+    inFile2 = '/home/douwe/compile/github/blender-gcode-reader/testFiles/line_R_large.gcode'
+
+#    inFile1 = '/home/douwe/Desktop/PS-logo.gcode'
+#    inFile2 = '/home/douwe/Desktop/PS-logo-inset.gcode'
 
     Ultimaker = Machine()
     Ultimaker.add_extruder(inFile1)        # add extruder 1
     Ultimaker.add_extruder(inFile2)        # add extruder 2
 #    print(Ultimaker)
 
+    # correct for the gcode centering
+    Ultimaker.extruders[1].add_offset(offsetX = 10, offsetY = 10)
+    Ultimaker.extruders[1].add_offset(offsetX = 0, offsetY = 22)
+
 #    Ultimaker.extruders[-1].debug_extruder()
 #    for i in Ultimaker.extruders[0].commands:
 #        print(repr(i))
 
-    Ultimaker.merge_extruders(11, 11)
+
+    Ultimaker.merge_extruders(21, 21)
     Ultimaker.extruders[-1].debug_extruder()
 
-#    Ultimaker.extruders[-1].export_standardGcde()
+#    Ultimaker.extruders[-1].debug_extruder()
+
+    Ultimaker.extruders[-1].export_standardGcode()
     
 #    Ultimaker.extruders[1].add_offset()
     
