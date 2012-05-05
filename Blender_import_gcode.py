@@ -63,10 +63,10 @@ sys.path.append("/home/douwe/.blender/2.62/scripts/addons/blender_gcode_reader")
 # modifications applied to these files are processed (i.e., force reloading)
 try:
     del sys.modules['Gcode_parser']
-    import Gcode_parser
+    from . import Gcode_parser
 except KeyError:
     # the module is not loaded yet, we can ignore the KeyError and import directly
-    import Gcode_parser
+    from . import Gcode_parser
 
 import bpy
 
@@ -216,8 +216,30 @@ class gcodeCurve:
         return blCurve
 
 
-                
+    def get_gcode_data(self):
+        """Returns the raw Gcode data from a gcodeCurve object.
+        
+        This method returns the raw Gcode data (in the self.standardGcode list)
+        with which the BezierCurve will be constructed. This aims to be better
+        able to debug the printed output, and the original Gcode.        
+        """
+        gcodeString = ""
+        for gcode in self.standardGcode:
+            gcodeString.join(gcode, "\n")
+        return gcodeString
 
+    
+    def get_splines_data(self):
+        """Returns the spline points data from a gcodeCurve object.
+        """
+        splineString = ""
+        for nr in len(self.splines):
+            splineString.join("\n*** -- spline {0} -- ***\n".format(nr))
+            for spl in self.splines[nr]:
+                splineString.join("    ", spl)
+        
+        return splineString
+        
 
 class gcodeCurvesData:
     """Stores information on the curves that are generated from Gcode commands.
