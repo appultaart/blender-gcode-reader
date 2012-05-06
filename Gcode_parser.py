@@ -20,45 +20,41 @@
 
 
 """
-A very basic Gcode reader for Python3.
+A very basic Gcode parser written in Python3.
 
-This file contains some very simple tools to parse a Gcode file in Python3.
-The purpose of this parser is to extract Gcode for use in Blender, as well as
-to work with merging Gcodes (for multi-extruderhead printing).
+The primary purpose of this parser is to extract Gcode for use in visualisation
+with the 3D software Blender. 
 
-This parser file is based upon the 'blender-gcode-reader' Blender addon code base by:
+This parser file is based upon the 'blender-gcode-reader' Blender script code base:
+- Original author: Simon Kirkby ('zignig'): https://github.com/zignig/blender-gcode-reader
+- Modifications: Alessandro Ranellucci ('alexjr'): https://github.com/alexrj/blender-gcode-reader
+- Modifications: Winter Guerra ('xtremd') : https://github.com/xtremd/blender-gcode-reader/
 
-Original author: Simon Kirkby ('zignig'): https://github.com/zignig/blender-gcode-reader
-Modifications: Alessandro Ranellucci ('alexjr'): https://github.com/alexrj/blender-gcode-reader
-Modifications: Winter Guerra ('xtremd') : https://github.com/xtremd/blender-gcode-reader/
+- Modifications: Douwe van der Veen ('appultaart') : https://github.com/appultaart/blender-gcode-reader/
 
-My modifications: Douwe van der Veen ('appultaart')
+This code is changed quite a bit from the original first script. For one, the 
+Blender drawing code is separated now from the Gcode parser code and placed
+in disctinct files. This file can run in Python3 without Blender as requirement.
 
-Primary reason for this rewrite of the already written code add-on:
-    1. I couldn't fine a Gcode parser written in Python/Python3
-    2. Our present need to merge two G-code files (generated from different .stl files);
-    3. Code must be working with our Ultimaker machines, and use 5D-coordinates (x,y,z,e,f)
-       in a more structured order (Object-based)
-    4. Code must accept Slic3r-generated gcode, not only Skeinforge... (Ideally: be Gcode-agnostic)
-    5. (Ideally, this code should serve as a library for later work, but that's for later, if it happens at all....)
-    6. Separate the Gcode parser from the Blender code parts--> so we can use both
-       independently, or put output to different programs.
+The Gcode parser is written as amateur object-oriented code. The structure is 
+chosen to resemble the physical mode of operation of 3D printers such as the 
+Ultimaker or Makerbot. 
 
-TODO:   -put back the nice blender-code that registers it as an add-on and is user-friendly;
-        -skeinforge and Makerbot stock gcode cannot be confirmed to work well for now, 
-            needs to be tested (test file!?)
-        - as the dE values are used (deltaE: difference between E points between
-            two Gcode commands), the ugly hack with the M101/M103 codes must
-            be worked out. Best is to implement a 'yield' function that returns
-            incremental E-values if no E-values are given?
+    1.  Machine: this instance represents a 3D printer.
+    2.  Extruder: each 'machine' can have one or more 'Extruder' instances.
+                  (We are printing with 2 to 4 different extruder heads mounted
+                  on one machine, for example to print with 2 colors of plastics).
+    3.  Gcode: Each 'extruder' instance holds all the information to move around,
+               print plastic, etc. These are the individual Gcode commands.
+
+    (4.) Reprap_Gcode: a class that stores machine-specific Gcode interpretations.
+                       If you want to process Gcode differently (for example, when
+                       using different firmware or different machines), you could
+                       create a new class (or derive from this one) and modify/add,
+                       without the need to modify the Gcode parser and processor 
+                       itself.
+
 """
-
-
-# ----- imports -----
-
-
-# ----- function definitions -----
-
 
 # ----- class definitions -----
 class Reprap_Gcode:
@@ -442,20 +438,20 @@ class Gcode:
 
 
 class Extruder:
-    """Extruder objects store information and can process a .gcode file. 
+    """Extruder objects process and store gcode information. 
     
-    Each member of the 'extruder' class stores information of a .gcode file,
+    Each member of the 'extruder' class stores information of a single .gcode file,
     and has some methods to process this information. 
     
     Variables:
         name            :   the name for the extruder, like 'Ultimaker' or 'Extruder 2'
         rawGcode        :   the Gcode commands are stored in a list, line by line
-        commands        :   the processed Gcode commands are stored in a list.
+        standardGcode   :   the processed Gcode commands are stored in a list.
         
         One may assume that the index position of the 'rawGcode' and 'commands' 
         lists point to the same command. Thus, 'myExtruder.rawGcode[4]' gives
         the Gcode command in the 5th line of the imported .gcode file, and 
-        'myExtruder.commands[4]' stores the processed command. 
+        'myExtruder.commands[4]' stores its processed command. 
     """
 
     def __init__(self, name='Extruder'):
@@ -666,7 +662,7 @@ class Extruder:
 
 
 class Machine:
-    """'Machine' instances hold information about a machine.
+    """'Machine' instances hold information about a 3D printer machine.
     
     A Machine aims to mimick the real physiological state of an actual
     3D printer, that is able to process Gcode commands in a certain way.

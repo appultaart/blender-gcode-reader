@@ -19,38 +19,40 @@
 # ##### END GPL LICENSE BLOCK #####
 
 """
-Blender Gcode-reader and visualization.
+Visualize 3D printer Gcode commands in Blender.
 
-This script takes a Gcode file, and parses the file to the very crude and basic 'gcode-parser'.
-The output of that are standardized 'Gcode' instances. This script will
-process these commands into Beziercurves for use inside Blender.
+This file is part of a multi-file Blender Add-On, for which this contains the 
+code that is required to make the BezierCurves and draw on screen.
 
-Both the 'Gcode_parser.py' file and this file are based upon the 'blender-gcode-reader' 
-addon code base by:
+This script takes a Gcode file, and parses that file using the 'Gcode_parser.py'
+Gcode parser. The output of this processed file are standardized 'Gcode' instances. 
+This script will process these commands further into Beziercurves for use inside Blender.
+
+This script is based upon the 'blender-gcode-reader' Blender Add-On code:
 
 Original author: Simon Kirkby ('zignig'): https://github.com/zignig/blender-gcode-reader
 Modifications: Alessandro Ranellucci ('alexjr'): https://github.com/alexrj/blender-gcode-reader
 Modifications: Winter Guerra ('xtremd') : https://github.com/xtremd/blender-gcode-reader
 
-Current modifications: Douwe van der Veen ('appultaart'): https://github.com/appultaart/blender-gcode-reader
+My modifications: Douwe van der Veen ('appultaart'): https://github.com/appultaart/blender-gcode-reader
 
-Primary reason for this rewrite of the already written code add-on:
-    1. I couldn't fine a Gcode parser written in Python/Python3
-    2. Our present need to merge two G-code files (generated from different .stl files);
-    3. Code must be working with our Ultimaker machines, and use 5D-coordinates (x,y,z,e,f)
-       in a more structured order (Object-based)
-    4. Code must accept Slic3r-generated gcode, not only Skeinforge... (Ideally: be Gcode-agnostic)
-    5. (Ideally, this code should serve as a library for later work, but that's for later, if it happens at all....)
-    6. Separate the Gcode parser from the Blender code parts--> so we can use both
-       independently, or put output to different programs.
 
-TODO:   -put back the nice blender-code that registers it as an add-on and is user-friendly;
-        -skeinforge and Makerbot stock gcode cannot be confirmed to work well for now, 
-            needs to be tested (test file!?)
-        - as the dE values are used (deltaE: difference between E points between
-            two Gcode commands), the ugly hack with the M101/M103 codes must
-            be worked out. Best is to implement a 'yield' function that returns
-            incremental E-values if no E-values are given?
+The code is meant to work as follows:
+    1. Create a 'Machine' instance
+    2. Create an 'Extruder' instance and attach this to the Machine
+    3. Load the Gcode data into the 'extruder' instance
+    (until here, the 'Gcode_parser.py' file is used only)
+    
+    4. For the selected Extruder instance, take the Gcode data that contains
+       useable information (print/stop printing plastic) and process it. 
+       All Gcodes with the same 'Z-value' are placed in the same 'gcodeCurve' 
+       instance. (All 'gcodeCurve' objects are placed into one 'gcodeCurvesData' 
+       instance). 
+    5. Convert the gcodeData to blender bezierCurves.
+    6. Draw the bezierCurves in the 3D viewport, with or without the use of a 
+       bevel object.
+    7. Enjoy... (or, start debugging ;-)).
+
 """
 
 # ----- imports -----

@@ -2,33 +2,54 @@
 # __init__.py #
 ###############
 
+# ##### BEGIN GPL LICENSE BLOCK #####
+#
+#  This program is free software; you can redistribute it and/or
+#  modify it under the terms of the GNU General Public License
+#  as published by the Free Software Foundation; either version 2
+#  of the License, or (at your option) any later version.
+#
+#  This program is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#  GNU General Public License for more details.
+#
+#  You should have received a copy of the GNU General Public License
+#  along with this program; if not, write to the Free Software Foundation,
+#  Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
+#
+# ##### END GPL LICENSE BLOCK #####
+
 """
-# gcode parser for blender 2.5 
-# Simon Kirkby
-# 201102051305
-# tigger@interthingy.com 
+Blender Add-on: visualize 3D printer Gcode data in Blender.
 
-# modified by David Anderson to handle Skeinforge comments
-# Thanks Simon!!!
+This code is derived from the 'blender-gcode-reader' Blender script code base:
+- Original author: Simon Kirkby ('zignig'): https://github.com/zignig/blender-gcode-reader
+    # Simon Kirkby
+    # 201102051305
+    # tigger@interthingy.com 
+    # modified by David Anderson to handle Skeinforge comments
+    # Thanks Simon!!!
 
-# modified by Alessandro Ranellucci (2011-10-14)
-# to make it compatible with Blender 2.59
-# and with modern 5D GCODE
+- Modifications: Alessandro Ranellucci ('alexjr'): https://github.com/alexrj/blender-gcode-reader
+    # modified by Alessandro Ranellucci (2011-10-14)
+    # to make it compatible with Blender 2.59
+    # and with modern 5D GCODE
 
-# Modified by Winter Guerra (XtremD) on February 16th, 2012
-# to make the script compatable with stock Makerbot GCode files
-# and grab all nozzle extrusion information from Skeinforge's machine output
-# WARNING: This script no longer works with stock 5D GCode! (Can somebody please integrate the two versions together?)
-# A big shout-out goes to my friend Jon Spyreas for helping me block-out the maths needed in the "addArc" subroutine
-# Thanks a million dude!
-# Github branch link: https://github.com/xtremd/blender-gcode-reader
+- Modifications: Winter Guerra ('xtremd') : https://github.com/xtremd/blender-gcode-reader/
+    # Modified by Winter Guerra (XtremD) on February 16th, 2012
+    # to make the script compatable with stock Makerbot GCode files
+    # and grab all nozzle extrusion information from Skeinforge's machine output
+    # WARNING: This script no longer works with stock 5D GCode! (Can somebody please integrate the two versions together?)
+    # A big shout-out goes to my friend Jon Spyreas for helping me block-out the maths needed in the "addArc" subroutine
+    # Thanks a million dude!
 
-# modified by Douwe van der Veen (appultaart) in March, 2012
-# to make the script compatible with Ultimaker Gcode files generated
-# from Slic3r. Also, overhaul of the script to separate the Gcode reader
-# part from the Blender drawing part: converted to multi-files addon.
-# Thanks to Jelle Boomstra for suggestions, advice, help.
-
+- Modifications: Douwe van der Veen ('appultaart') : https://github.com/appultaart/blender-gcode-reader/
+    # modified by Douwe van der Veen (appultaart) in March, 2012
+    # to make the script compatible with Ultimaker Gcode files generated
+    # from Slic3r. Also, overhaul of the script to separate the Gcode reader
+    # part from the Blender drawing part: converted to multi-files addon.
+    # Thanks to Jelle Boomstra for suggestions, advice, help.
 """
 
 # To support reload properly, try to access a package var, 
@@ -50,11 +71,11 @@ from bpy.props import StringProperty, BoolProperty
 
 
 bl_info = {
-    'name': 'DOUWE Import GCode',
-    'author': 'Douwe tests this',       #'Simon Kirkby',
-    'version': (0,0,7),
-    'blender': (2, 6, 2),
-    'api': 45822,
+    'name': 'Import GCode for 3D printers',
+    'author': 'Simon Kirkby; Douwe van der Veen, and others',
+    'version': (0,0,8),
+    'blender': (2, 6, 3),
+    'api': 46312,
     'location': 'File > Import-Export > Gcode',
     'description': 'Import and visualize gcode files generated for 3D printers (.gcode)',
     'category': 'Import-Export'}
