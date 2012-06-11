@@ -5,4 +5,4 @@ testFiles/
 __pycache__
 
 # ignore geany project file
-douwe_blender-gcode-reader.geany
+geany_BlenderGcodeReader_project.geany
