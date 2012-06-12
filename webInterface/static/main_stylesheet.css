@@ -1,0 +1,49 @@
+header {
+	font-family: DejaVu Sans Mono;
+	font-size: 1.5em;
+	text-indent: 50px;
+	height: 50px;
+	padding: 0.3em;
+	margin-bottom: 2em; 
+	}
+
+body {
+  background: white;
+  overflow: scroll;
+  font-family: "Times New Roman",Times,serif;
+  line-height: 1.6em;
+  font-size: 1.1em;
+/*  width: 600px;*/
+	}
+
+
+p {
+	font-style: italic;	
+	}
+
+
+/* add a cute little red line to some fields, so we see what we're doing here */
+header, nav, section, body, form {
+	display:block;
+	outline: 1px solid red;
+	}
+
+nav p {
+	font-style: italic;	
+	}
+
+nav {
+	width: 25%;
+	float: left;
+	font-size: 0.8em;
+	}
+
+div#container {
+	width: 600px;
+	margin: 0 auto;	
+	}
+
+div#content {
+	width: 75%;
+	float: left;
+	}

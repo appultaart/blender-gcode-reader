@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+    <title>Gcode parser web interface</title>
+	<meta charset="UTF-8">
+    <meta name="author" content="Douwe van der Veen" >
+    <meta name="description" content="merge Gcodes">
+    <meta name="keywords" content="gcode, gcode merge tool, gcode parser, 3d printing, bottle, python3">
+    <link rel="stylesheet" href="static/main_stylesheet.css">
+  </head>
+
+  <body>
+	<div id="container"> <!-- This container controls the content of the whole document -->
+
+    <header><img src="static/protospace_icon.png"></img> Merge Gcodes</header>
+  
+
+
+<div id="content">
+	<section>
+		<p>
+		This is the webpage where we request the user to select two .gcode files,
+		enter the line numbers where the 'head' of each file is, and then
+		press a button to do a 'merge .gcode files' operation. 
+		<br><br>
+		Note that at this moment, there is no testing for incorrect values etc.
+		</p>	
+	</section>
+	
+	<form method="POST" enctype="multipart/form-data">
+		<label for="file_first_gcode"> First .gcode file:</label><br>
+		<input id="data" name="data" type="file" ><br>
+		
+		<label for="text_first_gcode"> First .gcode head:</label><br>
+		<input id="text_first_gcode" name="firstHead" type="text"><br>
+		
+		<label for="file_second_gcode"> Second .gcode file:</label><br>
+		<input id="secondGcodeFile" name="secondGcodeFile" type="file"><br>
+
+		<label for="text_second_gcode"> Second .gcode head:</label><br>
+		<input id="text_second_gcode" name="secondHead" type="text"><br>
+		
+		<input id="send_information" type="submit" value="verzenden...">		
+	</form>
+
+</div>	<!-- sluiten van id=content -->
+</div>	<!-- Sluiten van id=container -->
+
+  </body>
+
+</html>
