@@ -31,7 +31,7 @@ Author: Douwe van der Veen ('appultaart') : https://github.com/appultaart/blende
 
 # ----- import -----
 from bottle import TEMPLATE_PATH, Bottle, Route, route, run, debug, template, request, validate, static_file, error, default_app, get, post
-
+import Gcode_parser
 
 
 # ----- constants and variables -----
@@ -71,60 +71,78 @@ def form_GET_mergeGcodes():
 @app.route("/merge_gcodes.html", method = "POST")
 def form_POST_mergeGcodes():
 	firstFile = request.files.data
-#	firstHead = request.forms.firstHead
+	firstHead = request.forms.firstHead
 	secondFile = request.files.secondGcodeFile
-#	secondHead = request.forms.secondHead
+	secondHead = request.forms.secondHead
 
-#	print("Input 1:", firstFile.file, type(firstFile), type(firstFile.file))
-#	print("*************")
-
-	with open(BOTTLE_TMP_FOLDER + "/" + firstFile.filename, mode="wt") as outFile1:
-		for line in firstFile.file:
-			outFile1.write(line.decode("utf-8"))
-
-	with open(BOTTLE_TMP_FOLDER + "/" + secondFile.filename, mode="wt") as outFile2:
-		for line in secondFile.file:
-			outFile2.write(line.decode("utf-8"))
-
-
-
+	checkForCorrectEntries = ""
+	continueProcessing = True
+	if firstFile is "":
+		checkForCorrectEntries += "<p>Please select a first .gcode file to merge</p><br>"
+		continueProcessing = False
+	if secondFile == "":
+		checkForCorrectEntries += "<p>Please select your second .gcode file to merge</p><br>"
+		continueProcessing = False
+	if firstHead == "":
+		checkForCorrectEntries += "<p>Please add a number where the first .gcode file starts its header</p><br>"
+		continueProcessing = False
+	if secondHead == "":
+		checkForCorrectEntries += "<p>Please add a number where the second .gcode file starts its header</p><br>"
+		continueProcessing = False
 			
-#	print("Input 2:", firstHead)
-#	print("Input 3:", secondFile.filename)
-#	print("Input 4:", secondHead)
-
-
-
-	#if firstHead == "Douwe":
-		#return "<p>Hello, Douwe!</p>"
-	#else:
-		#return """<p>Is there someone else <a href="merge_gcodes.html">here</a> ?</p>"""
+	if continueProcessing is False:
+		return checkForCorrectEntries
 	
+	else:
+		# CREATE an Ultimaker Machine
+		Ultimaker = Gcode_parser.Machine()
+		print("Activated an Ultimaker virtual machine")
+		
+		# Add the first extruder, process the 'firstFile', and convert to standardGcode
+		Ultimaker.extruders.append(Gcode_parser.Extruder(name = firstFile.filename))
+		currentExtruder = Ultimaker.extruders[-1]	
+		# process 'firstFile'
+		for line in firstFile.file:
+			line = line.decode("utf-8")
+			line = line.strip()
+			currentExtruder.rawGcode.append(line)	
+		print("Ultimaker Gcode #1 has been added successfully")
+		# convert raw Gcode to standard Gcode
+		currentExtruder.convert_rawGcode_to_standardGcode()
+		print("Current extruder {0}, converted successfully".format(currentExtruder.name))
+
+
+		# Add the second extruder, process the 'secondFile', and convert to standardGcode
+		Ultimaker.extruders.append(Gcode_parser.Extruder(name = secondFile.filename))
+		currentExtruder = Ultimaker.extruders[-1]	
+		# process 'secondFile'
+		for line in secondFile.file:
+			line = line.decode("utf-8")
+			line = line.strip()
+			currentExtruder.rawGcode.append(line)	
+		print("Ultimaker Gcode #1 has been added successfully")		
+		# convert raw Gcode to standard Gcode
+		currentExtruder.convert_rawGcode_to_standardGcode()
+		print("Current extruder {0}, converted successfully".format(currentExtruder.name))
 	
-	
+
+	    ## correct for the gcode centering
+	    #Ultimaker.extruders[1].add_offset(offsetX = 10, offsetY = 10)
+	    #Ultimaker.extruders[1].add_offset(offsetX = 0, offsetY = 22)
+
+	##    Ultimaker.extruders[-1].debug_extruder()
+	##    for i in Ultimaker.extruders[0].commands:
+	##        print(repr(i))
 
 
-#@app.route("/login", method="GET") 
-#def login_form():
-    #return """<form method="POST">
-                #<input name="name"     type="text" />
-              #</form>"""
+		Ultimaker.merge_extruders(int(firstHead), int(secondHead))
+		Ultimaker.extruders[-1].debug_extruder()
 
-#def check_login(name):
-    #if name == "douwe":
-        #return True
-    #else:
-        #return False
+		Ultimaker.extruders[-1].export_standardGcode(outFile = BOTTLE_TMP_FOLDER + "/merge_result.gcode")
+    
+		return "<p>Merging was successfull, and is saved in file '{0}'</p>".format(BOTTLE_TMP_FOLDER + "/merge_result.gcode")
 
 
-#@app.route('/login', method="POST") # or @route('/login', method='POST')
-#def login_submit():
-    #name     = request.forms.get("name")
-    #if check_login(name):
-        #return "<p>Your login was correct</p>"
-    #else:
-        #return "<p>Login failed</p>"
-        
 
 
 

@@ -20,25 +20,22 @@
 <div id="content">
 	<section>
 		<p>
-		This is the webpage where we request the user to select two .gcode files,
-		enter the line numbers where the 'head' of each file is, and then
-		press a button to do a 'merge .gcode files' operation. 
-		<br><br>
-		Note that at this moment, there is no testing for incorrect values etc.
+		Please give the two .gcode files, and enter the line numbers where 
+		the 'head' of each file is. Then, press 'Send'. 
 		</p>	
 	</section>
 	
 	<form method="POST" enctype="multipart/form-data">
-		<label for="file_first_gcode"> First .gcode file:</label><br>
+		<label for="file_first_gcode"> First .gcode file:</label>
 		<input id="data" name="data" type="file" ><br>
 		
-		<label for="text_first_gcode"> First .gcode head:</label><br>
+		<label for="text_first_gcode"> First .gcode head:</label>
 		<input id="text_first_gcode" name="firstHead" type="text"><br>
 		
-		<label for="file_second_gcode"> Second .gcode file:</label><br>
+		<label for="file_second_gcode"> Second .gcode file:</label>
 		<input id="secondGcodeFile" name="secondGcodeFile" type="file"><br>
 
-		<label for="text_second_gcode"> Second .gcode head:</label><br>
+		<label for="text_second_gcode"> Second .gcode head:</label>
 		<input id="text_second_gcode" name="secondHead" type="text"><br>
 		
 		<input id="send_information" type="submit" value="verzenden...">		
